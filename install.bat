@@ -41,7 +41,7 @@ if %errorLevel% neq 0 (
 
 echo [3/4] Registering COM values System-Wide for all users...
 
-reg add "HKLM\Software\Classes\CLSID\%CLSID%" /ve /t REG_SZ /d "10-bit AVIF Thumbnail Provider" /f >nul
+reg add "HKLM\Software\Classes\CLSID\%CLSID%" /ve /t REG_SZ /d "AVIF Thumbnail Provider" /f >nul
 
 reg add "HKLM\Software\Classes\CLSID\%CLSID%\InprocServer32" /ve /t REG_SZ /d "%TARGET_DIR%\%DLL_NAME%" /f >nul
 reg add "HKLM\Software\Classes\CLSID\%CLSID%\InprocServer32" /v "ThreadingModel" /t REG_SZ /d "Both" /f >nul
