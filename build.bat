@@ -1,0 +1,1 @@
+cl.exe /I . /EHsc /O2 /GL /MD /LD dllmain.cpp ThumbnailProvider.cpp /Fe:AvifThumb.dll /link /LTCG /DEF:exports.def dav1d.lib avif.lib yuv.lib Ole32.lib Gdi32.lib User32.lib Shlwapi.lib

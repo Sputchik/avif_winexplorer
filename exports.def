@@ -1,0 +1,4 @@
+LIBRARY "AvifThumb" 
+EXPORTS 
+    DllGetClassObject   PRIVATE 
+    DllCanUnloadNow     PRIVATE 
