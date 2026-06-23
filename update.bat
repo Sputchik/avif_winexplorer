@@ -4,7 +4,7 @@ call devcmd
 set "DEPS=%~dp0deps"
 if not exist "%DEPS%" mkdir "%DEPS%"
 set "OPT_FLAGS=/GL /arch:AVX2 /Oi /O2 /Ob2 /Gw /Gy /fp:fast"
-goto :sok
+@REM goto :sok
 
 if not exist libyuv ( git clone --single-branch https://chromium.googlesource.com/libyuv/libyuv --depth 1 )
 cd libyuv
