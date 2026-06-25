@@ -18,25 +18,27 @@ cmake -G Ninja -S libyuv -B libyuv/build ^
     -DCMAKE_BUILD_TYPE=Release ^
     -DENABLE_SHARED=OFF ^
     -DENABLE_STATIC=ON ^
-    -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF ^
+    -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON ^
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON
 
 cmake --build libyuv/build --config Release --target yuv --parallel %NUMBER_OF_PROCESSORS% --target install
 
 
-if not exist ("dav1d") (
-    git clone https://code.videolan.org/videolan/dav1d.git --depth 1
-    cd dav1d
-) else (
+if exist ("dav1d") (
     cd dav1d
     git pull
+) else (
+    git clone https://code.videolan.org/videolan/dav1d.git --depth 1
+    cd dav1d
 )
 if exist ("build") (
     rmdir /s /q build
 )
 
-mkdir build && cd build
-meson setup .. --buildtype release --default-library static -Db_lto=true -Db_ndebug=true --wipe
+mkdir build 
+cd build
+
+meson setup .. --buildtype release --default-library static -Db_lto=true -Db_ndebug=true -Denable_asm=true --wipe
 ninja
 copy /Y src\libdav1d.a ..\..\
 cd ..\..

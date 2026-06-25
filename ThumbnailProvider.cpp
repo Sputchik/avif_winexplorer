@@ -43,7 +43,7 @@ IFACEMETHODIMP AvifThumbnailProvider::GetThumbnail(UINT cx, HBITMAP *phbmp, WTS_
 
     avifDecoder* decoder = avifDecoderCreate();
     decoder->codecChoice = AVIF_CODEC_CHOICE_DAV1D;
-    decoder->maxThreads = 8;
+    decoder->maxThreads = 2;
     decoder->strictFlags = AVIF_STRICT_DISABLED;
 
     avifResult result = avifDecoderSetIOMemory(decoder, m_buffer.data(), m_buffer.size());
