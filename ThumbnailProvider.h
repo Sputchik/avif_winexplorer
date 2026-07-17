@@ -2,6 +2,7 @@
 #include <windows.h>
 #include <thumbcache.h>
 #include <vector>
+#include <memory>
 
 // Unique GUID for your specific AVIF Thumbnailer
 // {B7A41C69-7788-4660-84E3-8E50C0A1B2C3}
@@ -26,5 +27,6 @@ public:
 
 private:
     long m_cRef;
-    std::vector<uint8_t> m_buffer;
+    std::unique_ptr<uint8_t[]> m_buffer;
+    size_t m_bufferSize;
 };

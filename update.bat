@@ -3,14 +3,18 @@ call devcmd
 
 set "DEPS=%~dp0deps"
 if not exist "%DEPS%" mkdir "%DEPS%"
-set "OPT_FLAGS=/GL /arch:AVX2 /Oi /O2 /Ob2 /Gw /Gy /fp:fast"
+
+@REM /arch:AVX2 deliberately omitted here: dav1d/libyuv dispatch SIMD at runtime via
+@REM hand-written asm, so it buys nothing on the hot path, and it risks miscompiling
+@REM their portable C fallback code to require AVX2 on CPUs that don't have it.
+
+set "OPT_FLAGS=/O2 /Oi /Ob2 /Gw /Gy /fp:fast /arch:AVX2 /DNDEBUG"
 @REM goto :sok
 
 if not exist libyuv ( git clone --single-branch https://chromium.googlesource.com/libyuv/libyuv --depth 1 )
 cd libyuv
 git pull
 cd ..
-
 cmake -G Ninja -S libyuv -B libyuv/build ^
     -DCMAKE_C_FLAGS="%OPT_FLAGS%" ^
     -DCMAKE_CXX_FLAGS="%OPT_FLAGS%" ^
@@ -20,9 +24,7 @@ cmake -G Ninja -S libyuv -B libyuv/build ^
     -DENABLE_STATIC=ON ^
     -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON ^
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON
-
 cmake --build libyuv/build --config Release --target yuv --parallel %NUMBER_OF_PROCESSORS% --target install
-
 
 if exist ("dav1d") (
     cd dav1d
@@ -34,15 +36,15 @@ if exist ("dav1d") (
 if exist ("build") (
     rmdir /s /q build
 )
-
-mkdir build 
+mkdir build
 cd build
-
-meson setup .. --buildtype release --default-library static -Db_lto=true -Db_ndebug=true -Denable_asm=true --wipe
+@REM enable_tools/enable_tests/enable_docs=false only skips building dav1d's CLI/test
+@REM binaries you don't need - shorter build, no runtime effect.
+meson setup .. --buildtype release --default-library static -Db_lto=true -Db_ndebug=true -Denable_asm=true -Denable_tools=false -Denable_tests=false -Denable_docs=false --wipe
 ninja
+
 copy /Y src\libdav1d.a ..\..\
 cd ..\..
-
 if exist ("dav1d.lib") del dav1d.lib
 ren libdav1d.a dav1d.lib
 copy dav1d.lib "%DEPS%\lib\dav1d.lib" /Y
@@ -60,7 +62,6 @@ if not exist libavif (
 if exist ("build") ( rmdir /s /q build )
 mkdir build
 cd build
-
 cmake .. -G Ninja ^
   -DCMAKE_C_FLAGS="%OPT_FLAGS%" ^
   -DCMAKE_CXX_FLAGS="%OPT_FLAGS%" ^
@@ -68,7 +69,6 @@ cmake .. -G Ninja ^
   -DCMAKE_BUILD_TYPE=Release ^
   -DCMAKE_PREFIX_PATH="%DEPS%" ^
   -DCMAKE_INSTALL_PREFIX="%DEPS%" ^
-  -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON ^
   -DBUILD_SHARED_LIBS=OFF ^
   -DAVIF_BUILD_TESTS=OFF ^
   -DAVIF_BUILD_APPS=OFF ^
@@ -91,4 +91,5 @@ if not exist ("avif") (
 xcopy /Y /I "libavif\include\avif\" "avif\"
 xcopy /Y /I "%DEPS%\lib\avif.lib" ".\"
 xcopy /Y /I "%DEPS%\lib\yuv.lib" ".\"
+
 call build.bat
