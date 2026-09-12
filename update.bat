@@ -4,10 +4,6 @@ call devcmd
 set "DEPS=%~dp0deps"
 if not exist "%DEPS%" mkdir "%DEPS%"
 
-@REM /arch:AVX2 deliberately omitted here: dav1d/libyuv dispatch SIMD at runtime via
-@REM hand-written asm, so it buys nothing on the hot path, and it risks miscompiling
-@REM their portable C fallback code to require AVX2 on CPUs that don't have it.
-
 set "OPT_FLAGS=/O2 /Oi /Ob2 /Gw /Gy /fp:fast /arch:AVX2 /DNDEBUG"
 @REM goto :sok
 
